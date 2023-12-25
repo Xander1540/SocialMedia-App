@@ -1,5 +1,6 @@
 //contains all the routes related to Users.
-const express= require('express');
+
+const express = require('express');
 const router= express.Router();
 const {Users} = require("../models");
 const bcrypt = require("bcrypt");
@@ -22,7 +23,7 @@ router.post("/login", async (req,res) =>{
     const {username, password}= req.body;
     const user = await Users.findOne({where: {username: username}});
 
-    if(!user) res.json({error: "User doesn't exist."})
+    if(!user) res.json({error: "User doesn't exist."});
 
     bcrypt.compare(password, user.password).then(async (match)=>{
         if (!match) res.json({error: "Wrong Username or Password"});
@@ -34,6 +35,30 @@ router.post("/login", async (req,res) =>{
 
 router.get('/auth', validateToken, (req, res)=>{
     res.json(req.user);
-})
+});
+
+router.get('/basicinfo/:id', async (req, res)=>{
+     const id= req.params.id;
+
+     const basicInfo= await Users.findByPk(id, {attributes: {exclude: ['password']}});
+    res.json(basicInfo);
+});
+
+router.put('/changepassword', validateToken, async (req,res)=>{
+    const {oldPassword, newPassword} = req.body;
+    const user = await Users.findOne({ where: { username: req.user.username } });
+    
+    bcrypt.compare(oldPassword, user.password).then(async (match)=>{
+        if (!match) res.json({error: "Wrong Password!"});
+        
+        bcrypt.hash(newPassword, 10).then((hash)=>{
+            Users.update(
+                { password: hash },
+                { where: { username: req.user.username } }
+            );
+            res.json("Success");
+        });
+    });
+});
 
 module.exports = router;

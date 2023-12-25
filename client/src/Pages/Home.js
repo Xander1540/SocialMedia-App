@@ -1,7 +1,8 @@
+// eslint-disable-next-line
 import React, { useContext } from "react";
 import axios from "axios";  
 import {useEffect, useState} from "react";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import ThumbUpRoundedIcon from '@mui/icons-material/ThumbUpRounded';
 import { AuthContext } from "../helpers/AuthContext";
 
@@ -10,6 +11,7 @@ function Home() {
   const [listOfPosts, setListOfPosts] = useState([]);
   const [likedPosts, setLikedPosts] = useState([]);
   let navigate = useNavigate();
+  // eslint-disable-next-line
   const { authState } = useContext(AuthContext);
 
 
@@ -22,9 +24,11 @@ function Home() {
       setListOfPosts(response.data.listOfPosts);
       setLikedPosts(response.data.likedPosts.map((like)=>{
           return like.PostId;
-      }));
+      })
+      );
     });
     }
+    // eslint-disable-next-line
   }, []);
 
   const likeAPost = (postId) => {
@@ -48,7 +52,8 @@ function Home() {
         if (likedPosts.includes(postId)){
             setLikedPosts(likedPosts.filter((id)=>{
               return id!== postId;
-            }))
+            })
+          );
         } else {
           setLikedPosts([...likedPosts, postId])
         }
@@ -62,8 +67,11 @@ function Home() {
        <div key ={key} className='post'>
          <div className='title'> {value.title} </div>
          <div className='body'onClick={()=>{navigate(`/post/${value.id}`);}}> {value.postText} </div>
-         <div className='footer'> {value.username} <span style={{ marginRight: '240px' }}></span>
-         <ThumbUpRoundedIcon className= {likedPosts.includes(value.id) ? "unlikeBttn": "likeBttn"} onClick={() => { likeAPost(value.id)}}/>
+         <div className='footer'>
+          <Link to={`/profile/${value.UserId}`}> {value.username} </Link> <span style={{ marginRight: '240px' }}></span>
+         <div className="buttons">
+          <ThumbUpRoundedIcon className= {likedPosts.includes(value.id) ? "unlikeBttn": "likeBttn"} onClick={() => { likeAPost(value.id)}}/>
+         </div>
          <span style={{ marginRight: '10px' }}></span>
           <label> {value.Likes.length}</label>
           </div>
@@ -71,7 +79,7 @@ function Home() {
        ); 
     })}
     </div>
-  )
+  );
 }
 
 export default Home;
